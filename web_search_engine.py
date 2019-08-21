@@ -1,13 +1,15 @@
+import requests
 #get page
 def get_page(url):
+    print('get_page')
     try:
-        import urllib
-        return urllib.urlopen(url).read()
+        return requests.get(url)
     except:
         return ""
 
 #finding the urls in the page
 def get_next_target(page):
+    print('get_next_target')
     start_link = page.find('<a href =')
     if start_link == -1:
         return None, 0
@@ -18,6 +20,7 @@ def get_next_target(page):
 
 #printing all the links present in the page
 def get_all_links(page):
+    print('get_all_links')
     links = []
     while True:
         url, endpos = get_next_target(page)
@@ -28,19 +31,22 @@ def get_all_links(page):
             break
     return links
 #union of lists
-def Union(lst1, lst2): 
+def Union(lst1, lst2):
+    print('Union')
     final_list = list(set(lst1) | set(lst2)) 
     return final_list
 
 #crawler
 def crawl_web(seed):
+    print('crawl_web')
     tocrawl = [seed]
     crawled = []
-    index = []
+    index = {}
     while tocrawl:
         page = tocrawl.pop()
         if page not in crawled:
             content = get_page(page)
+            print(content)
             add_page_to_index(index,page,content)
             list(set(tocrawl).union(get_all_links(get_page(page))))
             #union(tocrawl, get_all_links(get_page(page)))
@@ -49,24 +55,27 @@ def crawl_web(seed):
 
 #build an index
 def add_to_index(index, keyword, url):
-    for entry in index:
-        if entry[0]==keyword:
-            entry[1].append(url)
-            return
-    return index.append([keyword,[url]])
-
+    print('add_to_index')
+    if keyword in index:
+        index[keyword].append(url)
+    else:
+        index[keyword] =[url]
+        
 #find in index
 def lookup(index, keyword):
-    for entry in index:
-        if entry[0] == keyword:
-            return entry[1]
-    return []
+    print('lookup')
+    if keyword in index:
+        return index[keyword]
+    else:
+        return None
 
 #building the web index
 def add_page_to_index(index, url,content):
+    print('add_page_to_index')
     words = content.split()
     for word in words:
         add_to_index(index,word,url)
+    print(index)
     
 
 idx = crawl_web("www.udacity.com")
